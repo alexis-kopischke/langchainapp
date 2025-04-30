@@ -17,12 +17,16 @@ def generate_response(uploaded_file, openai_api_key, query_text):
         texts = text_splitter.create_documents(documents)
         # Select embeddings
         embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key)
-        # Create a vectorstore from documents
-        db = Chroma.from_documents(texts, embeddings)
+        # ✅ Create a FAISS vectorstore from documents
+        db = FAISS.from_documents(texts, embeddings)
         # Create retriever interface
         retriever = db.as_retriever()
         # Create QA chain
-        qa = RetrievalQA.from_chain_type(llm=OpenAI(openai_api_key=openai_api_key), chain_type='stuff', retriever=retriever)
+        qa = RetrievalQA.from_chain_type(
+            llm=OpenAI(openai_api_key=openai_api_key),
+            chain_type='stuff',
+            retriever=retriever
+        )
         return qa.run(query_text)
 
 # Page title
@@ -32,7 +36,7 @@ st.title('🦜🔗 Ask the Doc App')
 # File upload
 uploaded_file = st.file_uploader('Upload an article', type='txt')
 # Query text
-query_text = st.text_input('Enter your question:', placeholder = 'Please provide a short summary.', disabled=not uploaded_file)
+query_text = st.text_input('Enter your question:', placeholder='Please provide a short summary.', disabled=not uploaded_file)
 
 # Form input and query
 result = []
@@ -51,5 +55,7 @@ openai_api_key = st.secrets["openai"]["api_key"]
 # Use the API key in your function
 llm = OpenAI(openai_api_key=openai_api_key)
 
+# Display result
 if len(result):
     st.info(response)
+

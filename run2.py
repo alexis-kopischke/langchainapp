@@ -42,5 +42,11 @@ with st.form('myform', clear_on_submit=True):
             result.append(response)
             del openai_api_key
 
+# Load API key from secrets
+openai_api_key = st.secrets["openai"]["api_key"]
+
+# Use the API key in your function
+llm = OpenAI(openai_api_key=openai_api_key)
+
 if len(result):
     st.info(response)
